@@ -17,13 +17,13 @@ ps = np.linspace(0.0001, 0.99999, len(bps))
 B, P = np.meshgrid(bps, ps)
 
 def test(a, B, P):
-    F_scipy = binc(a, B, P)
+    F_scipy = binc(B, a, P)
     F_my = np.zeros_like(F_scipy)
     F_my_inv = np.zeros_like(F_my)
     for x in range(B.shape[0]):
         for y in range(B.shape[1]):
-            F_my[x, y] = bnew(a, B[x, y], P[x, y])
-            F_my_inv[x, y] = 1 - bnew(B[x, y], a, 1 - P[x,  y])
+            F_my[x, y] = bnew(B[x, y], a, P[x, y])
+            F_my_inv[x, y] = 1 - bnew(a, B[x, y], 1 - P[x,  y])
     E1 = np.abs(F_scipy - F_my)
     E2 = np.abs(F_scipy - F_my_inv)
     E1r = E1 / F_scipy
@@ -48,15 +48,15 @@ def plot2(i, anim=False):
     a = '{:3}'.format(a)
     ax1 = plt.subplot(1, 2, 1)
     plt.contourf(P, B, E1, vmin=0.0, vmax=1.0, levels=levels)
-    plt.ylabel('r')
+    plt.ylabel('x')
     plt.xlabel('p')
-    plt.title(f'$I_p({a}, r)$')
+    plt.title(f'$I_p(x, {a})$')
     ax2 = plt.subplot(1, 2, 2)
     plt.xlabel('p')
     plt.contourf(P, B, E2, vmin=0.0, vmax=1.0, levels=levels)
     plt.yticks([])
     plt.ylabel(str())
-    plt.title(f'$1 - I_{{1-p}}(r, {a})$')
+    plt.title(f'$1 - I_{{1-p}}({a}, x)$')
     plt.tight_layout()
     plt.colorbar(ticks=[0, 0.5, 1], ax=[ax1, ax2], pad=0.015).ax.set_ylabel('Relative absolute error', rotation=270,
                                                                             labelpad=12)

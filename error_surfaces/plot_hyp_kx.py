@@ -14,7 +14,7 @@ from betanegbinfit.distributions import BetaNB
 p = 0.5
 xs = np.arange(1, 200)
 rs = np.arange(1, 200 + 1, 10)
-ks = np.linspace(5, 50, len(xs))
+ks = np.linspace(5, 200, len(xs))
 K, X = np.meshgrid(ks, xs)
 
 
@@ -57,13 +57,13 @@ def plot2(i, anim=False):
     plt.contourf(K, X, E1, vmin=0.0, vmax=1.0, levels=levels)
     plt.ylabel('x')
     plt.xlabel('$\kappa$')
-    plt.title(f'$G_{{BNB}}$(x, {r}, {p}, $\kappa$)')
+    plt.title(f'$G_{{BetaNB}}$(x, {r}, {p}, $\kappa$)')
     ax2 = plt.subplot(1, 2, 2)
     plt.xlabel('$\kappa$')
     plt.contourf(K, X, E2, vmin=0.0, vmax=1.0, levels=levels)
     plt.yticks([])
     plt.ylabel(str())
-    plt.title(f'$1-G_{{BNB}}$({r}-1, x + 1, {p}, $\kappa$)')
+    plt.title(f'$1-G_{{BetaNB}}$({r}-1, x + 1, {p}, $\kappa$)')
     plt.tight_layout()
     plt.colorbar(ticks=[0, 0.5, 1], ax=[ax1, ax2], pad=0.015).ax.set_ylabel('Relative absolute error', rotation=270,
                                                                             labelpad=12)
@@ -73,10 +73,10 @@ fig = plt.figure(figsize=(10, 4.5), dpi=300)
 plot2(100)
 plt.savefig('hyp_kx.pdf')
 
-# animate = lambda i, *args: plot2(i, True)
-# fig = plt.figure(figsize=(10, 4.5), dpi=150)
-# fun = FuncAnimation(fig, animate, frames=len(ps) , interval=200, repeat=False)
+animate = lambda i, *args: plot2(i, True)
+fig = plt.figure(figsize=(10, 4.5), dpi=150)
+fun = FuncAnimation(fig, animate, frames=len(rs) , interval=200, repeat=False)
 
-# print(f'Plotting animation (will take x{len(ps)} as long)...')
-# fun.save("hyp_xr.mp4")
+print(f'Plotting animation (will take x{len(ks)} as long)...')
+fun.save("hyp_kx.mp4")
 

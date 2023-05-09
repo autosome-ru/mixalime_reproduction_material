@@ -12,7 +12,7 @@ from betanegbinfit.hyp import cdf, _cdf, _cdfc, calc_cond
 from betanegbinfit.distributions import BetaNB
 
 a = 100
-k = 50
+k = 100
 xs = np.arange(1, 200)
 rs = np.arange(1, 200 + 1, 10)
 ps = np.linspace(0.0001, 0.99999, len(xs))
@@ -59,13 +59,13 @@ def plot2(i, anim=False):
     plt.contourf(P, X, E1, vmin=0.0, vmax=1.0, levels=levels)
     plt.ylabel('x')
     plt.xlabel('p')
-    plt.title(f'$G_{{BNB}}$(x, {r}, p, {k})')
+    plt.title(f'$G_{{BetaNB}}$(x, {r}, p, {k})')
     ax2 = plt.subplot(1, 2, 2)
     plt.xlabel('p')
     plt.contourf(P, X, E2, vmin=0.0, vmax=1.0, levels=levels)
     plt.yticks([])
     plt.ylabel(str())
-    plt.title(f'$1-G_{{BNB}}$({r}-1, x + 1, p, {k})')
+    plt.title(f'$1-G_{{BetaNB}}$({r}-1, x + 1, p, {k})')
     plt.tight_layout()
     plt.colorbar(ticks=[0, 0.5, 1], ax=[ax1, ax2], pad=0.015).ax.set_ylabel('Relative absolute error', rotation=270,
                                                                             labelpad=12)
