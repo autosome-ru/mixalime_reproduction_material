@@ -5,7 +5,7 @@ from collections import defaultdict
 from tqdm import tqdm
 import multiprocessing as mp
 
-res_folder = 'result_29'
+res_folder = 'result'
 seeds = list(filter(lambda x: os.path.isdir(os.path.join(res_folder, x)), os.listdir(res_folder)))
 
 def mean_and_std(d: defaultdict, name: str):

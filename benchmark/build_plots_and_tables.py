@@ -26,7 +26,7 @@ def update_style():
 
 update_style()
 figures_folder = 'figures/benchmark'
-results_folder = 'results_final'
+results_folder = 'result'
 os.makedirs(os.path.join(results_folder, figures_folder), exist_ok=True)
 
 colors = {'NB': 'blue', 'NB_p': 'darkblue', 'BetaNB': 'red', 'BetaNB_p': 'darkred', 'MCNB': 'violet', 'MCNB_p': 'darkviolet', 'binom': 'grey', 'binom_beta': 'black'}

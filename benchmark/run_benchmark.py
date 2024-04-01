@@ -11,7 +11,7 @@ import shutil
 import os
 
 data_folder = 'datasets'
-res_folder = 'result_29'
+res_folder = 'result'
 
 def sample_beta(size: int, a: float, b: float, mode='mu', right_b=1-1e-12):
     if mode == 'mu':
