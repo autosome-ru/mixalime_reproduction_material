@@ -4,9 +4,11 @@ import os
 from collections import defaultdict
 from tqdm import tqdm
 import multiprocessing as mp
+import lzma
+import dill
 
-res_folder = 'result'
-seeds = list(filter(lambda x: os.path.isdir(os.path.join(res_folder, x)), os.listdir(res_folder)))
+res_folder = 'result_window'
+seeds = list(filter(lambda x: os.path.isdir(os.path.join(res_folder, x)) and x.isdigit(), os.listdir(res_folder)))
 
 def mean_and_std(d: defaultdict, name: str):
     mean = defaultdict(lambda: defaultdict(list))
@@ -28,6 +30,7 @@ items = ['nb_bias', 'nb_mixture_bias_2_r0w', 'nb_mixture_bias_r0_bias', 'bnb_mix
 def doit(name: str):
     recall, specificity = defaultdict(lambda: defaultdict(list)), defaultdict(lambda: defaultdict(list))
     auc = defaultdict(lambda: defaultdict(list))
+    prc = defaultdict(lambda: defaultdict(list))
     for seed in tqdm(seeds):
         result_folder = os.path.join(res_folder, seed)
         folders = filter(lambda x: os.path.isdir(os.path.join(result_folder, x)) and x.startswith(name+'_'), os.listdir(result_folder))
@@ -57,7 +60,13 @@ def doit(name: str):
                     raucs.append(correct / total_ase)
                 paucs.append(total_ase / len(pvals))
                 raucs.append(1.0)
+                paucs = np.array(paucs)
+                raucs = np.array(raucs)
                 auc[param][model].append(np.trapz(paucs, raucs))
+                if seed == '0':
+                    inds = np.unique(raucs, return_index=True)[1]
+                    paucs, raucs = paucs[inds], raucs[inds]
+                    prc[param][model] = (raucs, paucs)
                 pval = pval[pval.fdr_comb_pval < 0.05]
                 correct = pval.ase.sum()
                 specificity[param][model].append(1.0 - (len(pval) - correct) / (len(pvals) - total_ase))
@@ -73,6 +82,10 @@ def doit(name: str):
     specificity_std.to_csv(os.path.join(res_folder, f'specificity_std_{name}.tsv'), sep='\t')
     auc_mean.to_csv(os.path.join(res_folder, f'auc_mean_{name}.tsv'), sep='\t')
     auc_std.to_csv(os.path.join(res_folder, f'auc_std_{name}.tsv'), sep='\t')
+    with lzma.open(os.path.join(res_folder, f'prc_{name}.lzma'), 'wb') as f:
+        dill.dump(prc, f)
+    with lzma.open(os.path.join(res_folder, f'auc_{name}.lzma'), 'wb') as f:
+        dill.dump(auc, f)
                 
                 
 with mp.Pool(min(mp.cpu_count(), len(items))) as p:

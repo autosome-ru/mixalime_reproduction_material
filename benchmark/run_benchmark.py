@@ -10,8 +10,9 @@ import pandas as pd
 import shutil
 import os
 
+local_ml = True
 data_folder = 'datasets'
-res_folder = 'result'
+res_folder = 'result_window' if local_ml else 'result'
 
 def sample_beta(size: int, a: float, b: float, mode='mu', right_b=1-1e-12):
     if mode == 'mu':
@@ -179,13 +180,8 @@ def mixalime_routine(name: str, dataset_folder, output_folder: str, left=0, max_
     lines = [f'echo "{dataset_folder}/{name}"']
     if not only_fits:
         lines.append(cmd)
-    # models = ['BetaNB --fix-params "b=1" --estimate-p', 'NB --fix-params "b=1" --estimate-p', 'MCNB --fix-params "b=1" --estimate-p']
     if est_p:
         models_mixalime = list(models_mixalime) + [f'{m} --fix-params "b=1" --estimate-p' for m in models_mixalime]# if m != 'BetaNB']
-        # if 'BetaNB' in models_mixalime:
-        #     models_mixalime.append('BetaNB --fix-params "b=1" --estimate-p --r-transform none')
-    #TOREMOVE!!!!!
-    # models_mixalime = list()
     for i, model in enumerate(models_mixalime): 
         project = f'{name}_{i}' if only_fits else name
         lines.append(f'echo "{dataset_folder}/{model}"')
@@ -193,7 +189,8 @@ def mixalime_routine(name: str, dataset_folder, output_folder: str, left=0, max_
             cmd = f'mixalime create {model_folder}/{project} {dataset_folder}/{name}.txt --min-cnt {left+1}'
             lines.append(cmd)
         if not external_fit:
-            cmd = f'mixalime fit {model_folder}/{project} {model} --max-count {max_count}'
+            window_size = '--window-size 100000000' if not local_ml else str()
+            cmd = f'mixalime fit {model_folder}/{project} {model} --max-count {max_count}' + window_size
             lines.append(cmd)
         if not only_fits:
             cmd = f'mixalime test {model_folder}/{project}'
@@ -312,7 +309,7 @@ def gen(seed: int):
     # # # # ###########    Varying BADs
     # print('Sampling varying BADs...')
     num_samples = 10
-    for bad in [1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0]:
+    for bad in [1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0]:
         print(f'Sampling BAD={bad}...')
         name = f'nb_nobias_bad_{bad}'
         folder = os.path.join(datasets_folder, name)
@@ -331,7 +328,7 @@ def gen(seed: int):
     # ###########    Varying refbias
     bad = 1
     p_mult = 0.4
-    for bias in np.linspace(1.0, 1.5, num=9)[1:]:
+    for bias in np.linspace(1.0, 1.5, num=9):
         print(f'Sampling bias={bias}...')
         name = f'nb_bias_{bias}'
         folder = os.path.join(datasets_folder, name)
@@ -349,7 +346,7 @@ def gen(seed: int):
     # ############## 
     # ##########    Varying refbias for BAD=2
     bad = 2
-    for bias in [1.1, 1.2, 1.3, 1.5]:
+    for bias in [1.0, 1.1, 1.2, 1.3, 1.5]:
         print(f'Sampling bias={bias}...')
         name = f'nb_bad2_bias_{bias}'
         folder = os.path.join(datasets_folder, name)
@@ -449,7 +446,7 @@ def gen(seed: int):
     r0_noise = 0
     kappa = None
     r0 = [r0a, r0b]
-    for b in np.linspace(1.0, 1.5, num=6)[1:]:
+    for b in np.linspace(1.0, 1.5, num=6):
         bias = [1.0, b]
         print(f'Sampling biased r0 mixture ra = {r0a}, rb = {r0b}, bias = [1, {b:.2f}...')
         name = f'nb_mixture_bias_r0_bias_{b:.2}'
